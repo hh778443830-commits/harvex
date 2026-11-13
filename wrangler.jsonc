@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "harvex",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-13",
+  "workers_dev": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "harvex-db",
+      "database_id": "9809ded9-4cd4-4a8c-aa1a-fe3e2d4c3907",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "assets": { "directory": "./public", "binding": "ASSETS" }
+}

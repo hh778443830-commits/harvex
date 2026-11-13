@@ -1,0 +1,9 @@
+const $=s=>document.querySelector(s);const login=$('#login'),dash=$('#dashboard');
+async function api(path,options={}){const r=await fetch(path,{...options,headers:{'content-type':'application/json',...(options.headers||{})}});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'تعذر تنفيذ الطلب');return d}
+function show(user){login.classList.add('hidden');dash.classList.remove('hidden');$('#welcome').textContent=`مرحباً ${user.display_name||user.displayName||user.username}`;loadCustomers()}
+async function loadCustomers(){try{const d=await api('/api/customers');$('#count').textContent=d.customers.length;$('#customers').innerHTML=d.customers.map(c=>`<div class="customer"><b>${esc(c.name)}</b><br><small>${esc(c.phone||'لا يوجد رقم هاتف')}</small></div>`).join('')||'<p class="sub">لا يوجد عملاء حتى الآن.</p>'}catch(e){$('#customerMsg').textContent=e.message}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginMsg').textContent='جارٍ التحقق...';const f=new FormData(e.target);try{const d=await api('/api/login',{method:'POST',body:JSON.stringify({username:f.get('username'),password:f.get('password')})});show(d.user)}catch(err){$('#loginMsg').textContent=err.message}});
+$('#customerForm').addEventListener('submit',async e=>{e.preventDefault();const f=new FormData(e.target);try{await api('/api/customers',{method:'POST',body:JSON.stringify({name:f.get('name'),phone:f.get('phone'),notes:f.get('notes')})});e.target.reset();$('#customerMsg').textContent='تم حفظ العميل';loadCustomers()}catch(err){$('#customerMsg').textContent=err.message}});
+$('#logout').addEventListener('click',async()=>{await api('/api/logout',{method:'POST'}).catch(()=>{});dash.classList.add('hidden');login.classList.remove('hidden')});
+api('/api/me').then(d=>show(d.user)).catch(()=>{});
